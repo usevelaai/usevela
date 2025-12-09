@@ -1,0 +1,36 @@
+{
+	"name": "@vela/db",
+	"version": "0.0.1",
+	"private": true,
+	"type": "module",
+	"main": "./dist/index.js",
+	"types": "./dist/index.d.ts",
+	"exports": {
+		".": {
+			"import": "./dist/index.js",
+			"types": "./dist/index.d.ts"
+		}
+	},
+	"scripts": {
+		"build": "tsup src/index.ts --format esm --dts",
+		"dev": "tsup src/index.ts --format esm --dts --watch",
+		"type-check": "tsc --noEmit",
+		"lint": "biome check src",
+		"lint:fix": "biome check --write src",
+		"db:generate": "drizzle-kit generate",
+		"db:migrate": "drizzle-kit migrate",
+		"db:push": "drizzle-kit push",
+		"db:studio": "drizzle-kit studio"
+	},
+	"dependencies": {
+		"@vela/types": "workspace:*",
+		"drizzle-orm": "^0.37.0",
+		"postgres": "^3.4.7"
+	},
+	"devDependencies": {
+		"@types/node": "^22.10.1",
+		"drizzle-kit": "^0.30.1",
+		"tsup": "^8.3.5",
+		"typescript": "^5.7.2"
+	}
+}

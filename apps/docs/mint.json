@@ -1,0 +1,51 @@
+{
+	"$schema": "https://mintlify.com/schema.json",
+	"name": "Vela Docs",
+	"logo": {
+		"dark": "/logo/dark.svg",
+		"light": "/logo/light.svg"
+	},
+	"favicon": "/favicon.svg",
+	"colors": {
+		"primary": "#0D9373",
+		"light": "#07C983",
+		"dark": "#0D9373",
+		"anchors": {
+			"from": "#0D9373",
+			"to": "#07C983"
+		}
+	},
+	"topbarLinks": [
+		{
+			"name": "Support",
+			"url": "mailto:support@usevela.ai"
+		}
+	],
+	"topbarCtaButton": {
+		"name": "Dashboard",
+		"url": "https://example.com/dashboard"
+	},
+	"anchors": [
+		{
+			"name": "Reference",
+			"icon": "code",
+			"url": "api-reference"
+		}
+	],
+	"navigation": [
+		{
+			"group": "Get Started",
+			"pages": ["introduction"]
+		},
+		{
+			"group": "API Reference",
+			"pages": ["api-reference/overview", "api-reference/health", "api-reference/chat"]
+		}
+	],
+	"footerSocials": {
+		"github": "https://github.com/usevela/usevela"
+	},
+	"api": {
+		"baseUrl": "http://localhost:3001"
+	}
+}

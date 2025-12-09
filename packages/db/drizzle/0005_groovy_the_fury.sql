@@ -1,0 +1,1 @@
+ALTER TABLE "interface_settings" ADD COLUMN "welcome_bubble" text;

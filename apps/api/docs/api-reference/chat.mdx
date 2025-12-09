@@ -1,0 +1,230 @@
+---
+title: "Chat"
+description: "Streaming chat endpoint with RAG capabilities"
+api: "POST /chat"
+---
+
+## Request
+
+Send a conversation to receive a streaming AI response with automatic context retrieval.
+
+### Body
+
+<ParamField body="messages" type="array" required>
+  Array of conversation messages. Must contain at least one user message.
+
+  <Expandable title="Message Object">
+    <ParamField body="role" type="string" required>
+      The role of the message author. Either `"user"` or `"assistant"`.
+    </ParamField>
+    <ParamField body="content" type="string" required>
+      The content of the message.
+    </ParamField>
+  </Expandable>
+</ParamField>
+
+<ParamField body="threadId" type="string">
+  Optional thread identifier for conversation tracking.
+</ParamField>
+
+## Response
+
+The response is a Server-Sent Events (SSE) stream following the ChatKit protocol.
+
+### Event Types
+
+<ResponseField name="message_start" type="object">
+  Indicates the start of an assistant message.
+  ```json
+  {
+    "type": "message_start",
+    "message": {
+      "id": "uuid",
+      "role": "assistant"
+    }
+  }
+  ```
+</ResponseField>
+
+<ResponseField name="content_block_start" type="object">
+  Indicates the start of a content block.
+  ```json
+  {
+    "type": "content_block_start",
+    "index": 0,
+    "content_block": {
+      "type": "text",
+      "text": ""
+    }
+  }
+  ```
+</ResponseField>
+
+<ResponseField name="content_block_delta" type="object">
+  Contains streamed text content.
+  ```json
+  {
+    "type": "content_block_delta",
+    "index": 0,
+    "delta": {
+      "type": "text_delta",
+      "text": "Hello"
+    }
+  }
+  ```
+</ResponseField>
+
+<ResponseField name="content_block_stop" type="object">
+  Indicates the end of a content block.
+  ```json
+  {
+    "type": "content_block_stop",
+    "index": 0
+  }
+  ```
+</ResponseField>
+
+<ResponseField name="message_stop" type="object">
+  Indicates the end of the message.
+  ```json
+  {
+    "type": "message_stop"
+  }
+  ```
+</ResponseField>
+
+<ResponseField name="error" type="object">
+  Indicates an error occurred.
+  ```json
+  {
+    "type": "error",
+    "error": {
+      "message": "Error description"
+    }
+  }
+  ```
+</ResponseField>
+
+## Errors
+
+| Status | Description |
+|--------|-------------|
+| 400 | `messages array required` - Missing or invalid messages array |
+| 400 | `at least one user message required` - No user message in array |
+| 500 | Internal server error |
+
+<RequestExample>
+```bash cURL
+curl -X POST http://localhost:3001/chat \
+  -H "Content-Type: application/json" \
+  -d '{
+    "messages": [
+      {"role": "user", "content": "What is RAG?"}
+    ]
+  }'
+```
+
+```javascript JavaScript
+const response = await fetch('http://localhost:3001/chat', {
+  method: 'POST',
+  headers: { 'Content-Type': 'application/json' },
+  body: JSON.stringify({
+    messages: [
+      { role: 'user', content: 'What is RAG?' }
+    ]
+  })
+});
+
+const reader = response.body.getReader();
+const decoder = new TextDecoder();
+
+while (true) {
+  const { done, value } = await reader.read();
+  if (done) break;
+
+  const chunk = decoder.decode(value);
+  const lines = chunk.split('\n');
+
+  for (const line of lines) {
+    if (line.startsWith('data:')) {
+      const data = JSON.parse(line.slice(5));
+      if (data.type === 'content_block_delta') {
+        process.stdout.write(data.delta.text);
+      }
+    }
+  }
+}
+```
+
+```typescript TypeScript
+interface ChatMessage {
+  role: 'user' | 'assistant';
+  content: string;
+}
+
+interface ChatRequest {
+  messages: ChatMessage[];
+  threadId?: string;
+}
+
+async function chat(request: ChatRequest) {
+  const response = await fetch('http://localhost:3001/chat', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(request)
+  });
+
+  const reader = response.body!.getReader();
+  const decoder = new TextDecoder();
+  let fullText = '';
+
+  while (true) {
+    const { done, value } = await reader.read();
+    if (done) break;
+
+    const chunk = decoder.decode(value);
+    const lines = chunk.split('\n');
+
+    for (const line of lines) {
+      if (line.startsWith('data:')) {
+        const data = JSON.parse(line.slice(5));
+        if (data.type === 'content_block_delta') {
+          fullText += data.delta.text;
+        }
+      }
+    }
+  }
+
+  return fullText;
+}
+```
+</RequestExample>
+
+<ResponseExample>
+```text SSE Stream
+event:message_start
+data:{"type":"message_start","message":{"id":"550e8400-e29b-41d4-a716-446655440000","role":"assistant"}}
+
+event:content_block_start
+data:{"type":"content_block_start","index":0,"content_block":{"type":"text","text":""}}
+
+event:content_block_delta
+data:{"type":"content_block_delta","index":0,"delta":{"type":"text_delta","text":"RAG stands for "}}
+
+event:content_block_delta
+data:{"type":"content_block_delta","index":0,"delta":{"type":"text_delta","text":"Retrieval-Augmented Generation..."}}
+
+event:content_block_stop
+data:{"type":"content_block_stop","index":0}
+
+event:message_stop
+data:{"type":"message_stop"}
+```
+</ResponseExample>
+
+## How It Works
+
+1. **Context Retrieval**: The last user message is used to search the vector database for relevant documents
+2. **System Prompt**: Retrieved context is injected into the system prompt
+3. **Streaming**: Claude generates a response, streamed back via SSE
+4. **Protocol**: Events follow the ChatKit protocol for easy frontend integration

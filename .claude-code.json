@@ -1,0 +1,11 @@
+{
+	"model": "claude-sonnet-4-20250514",
+	"rules": [
+		"Always use pnpm, not npm",
+		"Follow our TypeScript style guide",
+		"Add JSDoc comments to all exported functions",
+		"Use Drizzle ORM for all database queries",
+		"Follow ChatKit protocol for chat endpoints"
+	],
+	"ignore": ["node_modules", ".next", "dist"]
+}

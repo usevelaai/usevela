@@ -1,0 +1,35 @@
+---
+title: "Overview"
+description: "Root endpoint for API status"
+api: "GET /"
+---
+
+## Request
+
+No parameters required.
+
+## Response
+
+<ResponseField name="message" type="string">
+  Status message from the API
+</ResponseField>
+
+<RequestExample>
+```bash cURL
+curl http://localhost:3001/
+```
+
+```javascript JavaScript
+const response = await fetch('http://localhost:3001/');
+const data = await response.json();
+console.log(data.message);
+```
+</RequestExample>
+
+<ResponseExample>
+```json Response
+{
+  "message": "Hello from Hono!"
+}
+```
+</ResponseExample>

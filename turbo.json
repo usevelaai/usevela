@@ -1,0 +1,36 @@
+{
+	"$schema": "https://turbo.build/schema.json",
+	"ui": "tui",
+	"globalEnv": [
+		"DATABASE_URL",
+		"BETTER_AUTH_SECRET",
+		"SELF_HOSTED",
+		"OPENAI_API_BASE",
+		"OPENAI_API_KEY",
+		"OPENAI_MODEL",
+		"ANTHROPIC_API_KEY",
+		"DASHBOARD_URL",
+		"POLAR_ACCESS_TOKEN",
+		"POLAR_ENVIRONMENT"
+	],
+	"tasks": {
+		"build": {
+			"dependsOn": ["^build"],
+			"inputs": ["$TURBO_DEFAULT$", ".env*"],
+			"outputs": [".next/**", "!.next/cache/**", "dist/**"]
+		},
+		"dev": {
+			"cache": false,
+			"persistent": true
+		},
+		"lint": {
+			"dependsOn": ["^build"]
+		},
+		"type-check": {
+			"dependsOn": ["^build"]
+		},
+		"clean": {
+			"cache": false
+		}
+	}
+}

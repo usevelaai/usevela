@@ -1,0 +1,42 @@
+---
+title: Introduction
+description: "vela API - AI-powered chat with RAG capabilities"
+---
+
+## Overview
+
+vela API provides a streaming chat interface powered by Claude with Retrieval-Augmented Generation (RAG) capabilities. The API automatically searches a vector database for relevant context and incorporates it into responses.
+
+## Base URL
+
+```
+http://localhost:3001
+```
+
+## Features
+
+- **Streaming responses** - Real-time SSE streaming following the ChatKit protocol
+- **RAG integration** - Automatic vector search for context-aware responses
+- **Claude-powered** - Uses Claude claude-sonnet-4-20250514 for high-quality responses
+
+## Quick Start
+
+```bash
+curl -X POST http://localhost:3001/chat \
+  -H "Content-Type: application/json" \
+  -d '{
+    "messages": [
+      {"role": "user", "content": "Hello!"}
+    ]
+  }'
+```
+
+## Response Format
+
+The API uses Server-Sent Events (SSE) following the ChatKit protocol:
+
+1. `message_start` - Indicates start of assistant response
+2. `content_block_start` - Indicates start of content block
+3. `content_block_delta` - Contains text chunks
+4. `content_block_stop` - Indicates end of content block
+5. `message_stop` - Indicates end of message

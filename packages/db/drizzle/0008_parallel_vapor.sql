@@ -1,0 +1,23 @@
+CREATE TABLE "tool_templates" (
+	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
+	"slug" text NOT NULL,
+	"name" text NOT NULL,
+	"description" text NOT NULL,
+	"long_description" text,
+	"category" text NOT NULL,
+	"icon" text DEFAULT 'wrench' NOT NULL,
+	"tool_name" text NOT NULL,
+	"tool_description" text NOT NULL,
+	"input_schema" json NOT NULL,
+	"execution_type" text DEFAULT 'http' NOT NULL,
+	"http_url" text,
+	"http_method" text DEFAULT 'GET',
+	"http_headers" json,
+	"mock_response" text,
+	"required_config" json,
+	"is_active" boolean DEFAULT true NOT NULL,
+	"is_free" boolean DEFAULT true NOT NULL,
+	"created_at" timestamp DEFAULT now() NOT NULL,
+	"updated_at" timestamp DEFAULT now() NOT NULL,
+	CONSTRAINT "tool_templates_slug_unique" UNIQUE("slug")
+);
